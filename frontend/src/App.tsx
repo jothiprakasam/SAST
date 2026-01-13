@@ -23,10 +23,13 @@ export default function App() {
   const location = useLocation()
   const isAuthPage = location.pathname === '/login' || location.pathname.startsWith('/auth-')
   const [user, setUser] = useState<any>(null)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const navigate = useNavigate()
 
   useEffect(()=>{
      api.get('/auth/me').then(r => setUser(r.data.user)).catch(()=> setUser(null))
+     // Close mobile sidebar when navigating
+     setMobileSidebarOpen(false)
   }, [location.pathname])
 
   const menuItems = [
@@ -69,11 +72,16 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#0b0e14] font-sans flex overflow-hidden">
       {!isAuthPage && (
-        <aside className="w-[306px] h-screen bg-[#111620] flex flex-col pt-9 pb-6 px-7 border-r border-[#1e2330] fixed left-0 top-0 z-50 transition-all duration-300 transform -translate-x-full md:translate-x-0">
+        <aside className={`${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 w-[306px] h-screen bg-[#111620] flex flex-col pt-9 pb-6 px-7 border-r border-[#1e2330] fixed left-0 top-0 z-50 transition-transform duration-300`}>
            {/* Logo Section */}
            <div className="flex items-center gap-3 mb-14 px-2">
               <img src="/logo-header.svg" alt="SAST" className="h-9" />
            </div>
+
+           {/* Mobile close button */}
+           <button onClick={()=>setMobileSidebarOpen(false)} aria-label="Close menu" className="md:hidden absolute top-4 right-4 p-2 rounded-md text-white bg-black/20"> 
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+           </button>
 
            {/* Navigation */}
            <div className="flex-1 overflow-y-auto no-scrollbar">
@@ -126,12 +134,34 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className={`flex-1 relative ${isAuthPage ? '' : 'md:ml-[306px]'} overflow-x-hidden bg-[#0b0e14]`}>
+
+         {/* Mobile overlay when sidebar is open */}
+         <div className={`fixed inset-0 bg-black/40 z-40 md:hidden ${mobileSidebarOpen ? 'block' : 'hidden'}`} onClick={()=>setMobileSidebarOpen(false)} aria-hidden="true"></div>
+
+         {/* Mobile top bar (hamburger) */}
+         {!isAuthPage && (
+           <div className="md:hidden flex items-center justify-between p-4 border-b border-[#1e2330] bg-[#0b0e14]/80 backdrop-blur-md sticky top-0 z-40 transition-all">
+             <button aria-label="Open menu" className="p-2.5 rounded-xl text-white bg-[#1e2330] hover:bg-[#2d3748] transition-colors border border-[#2d3748] shadow-lg" onClick={()=> setMobileSidebarOpen(true)}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+             </button>
+             <div className="flex items-center gap-2">
+                {/* Optional logo here if needed */}
+                <div className="text-lg font-bold text-white tracking-tight">SAST<span className="text-[#5932ea]">.</span></div>
+             </div>
+             <div className="w-10" /> {/* Spacer for balance */}
+           </div>
+         )}
+
          {/* Background glow effects for "best dark theme" vibe */}
          {!isAuthPage && (
            <div className="absolute top-[-200px] right-[-200px] w-[600px] h-[600px] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none"></div>
          )}
 
-         <div className={`${isAuthPage ? '' : 'p-10'} min-h-full`}>
+         <div className={`${isAuthPage ? '' : 'p-4 md:p-10'} min-h-full max-w-7xl mx-auto`}>
             <Routes>
               <Route path="/" element={<Health />} />
               <Route path="/run-analysis" element={<Analyze />} />

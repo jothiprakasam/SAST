@@ -91,7 +91,7 @@ export default function Login(){
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0b0e14] p-4 font-sans relative overflow-hidden">
         {/* Back button */}
-        <button onClick={() => navigate(-1)} aria-label="Back" className="absolute top-8 left-8 flex items-center text-gray-400 hover:text-white transition-colors z-20">
+        <button onClick={() => navigate(-1)} aria-label="Back" className="absolute top-6 left-4 md:top-8 md:left-8 flex items-center text-gray-400 hover:text-white transition-colors z-20">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="mr-2"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           <span className="text-sm font-medium">Back</span>
         </button>
@@ -100,12 +100,12 @@ export default function Login(){
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#5932ea]/10 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-      <div className="w-full max-w-5xl h-[600px] bg-[#1e2330] rounded-[30px] overflow-hidden shadow-2xl flex flex-col md:flex-row relative z-10">
+      <div className="w-full max-w-5xl md:h-[600px] h-auto max-h-[92vh] bg-[#1e2330] rounded-[30px] overflow-auto shadow-2xl flex flex-col md:flex-row relative z-10">
         
         {/* Left Section: Login Form */}
-        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative bg-[#1e2330]">
-            <div className="max-w-sm mx-auto w-full">
-                <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+        <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col justify-center relative bg-[#1e2330]">
+            <div className="max-w-sm mx-auto w-full px-2">
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Welcome Back</h2>
                 <p className="text-[#9197b3] mb-8">Log in to your security dashboard.</p>
                 
                 {/* Social Login Buttons */}
@@ -121,6 +121,7 @@ export default function Login(){
                   {providers.includes('github') && (
                      <button 
                       onClick={()=>{ window.location.href = '/auth/login/github' }} 
+                      aria-label="Sign in with GitHub"
                       className="w-full py-3 px-4 bg-[#0b0e14] hover:bg-black text-white rounded-xl flex items-center justify-center gap-3 transition-colors font-bold text-sm border border-gray-800">
                       <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.2 1.87.86 2.33.66.07-.52.28-.86.51-1.06-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.34-.27 2.03-.27.69 0 1.39.09 2.03.27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
                       <span>Sign in with GitHub</span>
@@ -169,7 +170,7 @@ export default function Login(){
                             maxLength={6}
                             value={state.otp}
                             onChange={(e)=>setState({...state, otp: e.target.value.replace(/[^0-9]/g,'')})}
-                            className="w-full bg-[#0b0e14] border border-transparent rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#5932ea] transition-all tracking-widest text-center text-lg font-mono"
+                            className="w-full bg-[#0b0e14] border border-transparent rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#5932ea] transition-all tracking-widest text-center text-lg md:text-lg text-base font-mono"
                             placeholder="000 000"
                         />
                         <div className="mt-4 flex gap-3">
