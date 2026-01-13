@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="5UqrdU9Z9rSZpkyk4yat-9HFYNFxgv18hy64IvVf_y4" />
+    <title>Student Projects</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="landing_page.css">
+</head>
+<body class="font-sans bg-gray-900 text-gray-100">
+
+    <nav class="fixed top-0 left-0 w-full bg-gray-800 shadow-lg z-50">
+        <div class="container mx-auto flex justify-between items-center p-4">
+            <a href="{% url 'landing-page' %}" class="flex items-center text-white">
+                <img src="{% static 'images/logo.png' %}" class="h-10 mr-2" alt="Logo">
+                <h1 class="text-xl font-bold">StudentProjects</h1>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'home' %}" class="text-white hover:text-gray-400">Home</a>
+                <a href="{% url 'about' %}" class="text-white hover:text-gray-400">About</a>
+                <a href="{% url 'sdg-goals' %}" class="text-white hover:text-gray-400">SDG Goals</a>
+                <a href="{% url 'submit-project' %}" class="text-white hover:text-gray-400">Submit Project</a>
+                <a href="{% url 'resources' %}" class="text-white hover:text-gray-400">Resources</a>
+                <a href="{% url 'contact' %}" class="text-white hover:text-gray-400">Contact Us</a>
+                <a href="{% url 'login' %}" class="flex items-center text-white hover:text-gray-400">
+                    <img src="{% static 'images/avatar.svg' %}" class="h-8 mr-2" alt="Login">
+                    <p>Login</p>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero h-screen bg-cover bg-center" style="background-image: url('');">
+        <div class="flex items-center justify-center h-full bg-black bg-opacity-50">
+            <div class="text-center text-white">
+                <h1 class="text-5xl font-cursive">Student Projects</h1>
+                <h2 class="text-2xl mt-4">Creating innovation among students.</h2>
+                <a href="{% url 'submit-project' %}" class="mt-8 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Submit Your Project</a>
+            </div>
+        </div>
+    </div>
+
+    <section class="py-20 text-center bg-gray-900 text-gray-100">
+        <h1 class="text-4xl font-playfair">Discover the best things we do</h1>
+        <h3 class="text-lg text-gray-400 mt-2">We exist for nourishing young minds, leading them in the right direction, and motivating them to come up with new innovations for a better world.</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                <h3 class="font-semibold">Amazing Environment</h3>
+                <p>Working as a team will always increase the interest in doing anything that you do.</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                <h3 class="font-semibold">Peer to Peer Connections</h3>
+                <p>Connecting with domain experts through workshops and hands-on training.</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                <h3 class="font-semibold">Supporting Budding Minds</h3>
+                <p>Supporting good projects is what we did, and will continue to do so.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-gray-800 text-gray-100">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl font-playfair mb-6">About Us</h1>
+            <div class="flex flex-wrap items-center justify-around">
+                <div class="w-full md:w-1/2 mb-6 md:mb-0">
+                    <img src="{% static 'images/about_us.jpg' %}" alt="About Us" class="w-full rounded-lg shadow-lg">
+                </div>
+                <div class="w-full md:w-1/2 px-4">
+                    <p class="text-lg leading-relaxed mb-4">StudentProjects is a platform dedicated to empowering students by providing them with the resources and support they need to bring their innovative ideas to life. We believe in nurturing young minds and guiding them towards achieving the Sustainable Development Goals (SDGs).</p>
+                    <p class="text-lg leading-relaxed mb-4">Our mission is to create an environment where students can collaborate, learn, and grow. We offer various workshops, seminars, and mentorship programs to help students develop their projects and gain valuable skills.</p>
+                    <p class="text-lg leading-relaxed">Join us in our mission to create a better world through innovation and sustainable development.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-gray-900 text-gray-100">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl font-playfair mb-6">Sustainable Development Goals (SDGs)</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-10">
+                {% for goal in sdg_goals %}
+                <div class="sdg-card p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    <img src="{{ goal.image_url }}" alt="{{ goal.name }}" class="w-full h-32 object-cover mb-4 rounded">
+                    <h3 class="font-semibold text-xl">{{ goal.name }}</h3>
+                    <p class="text-gray-400 mt-2">{{ goal.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-gray-800 text-gray-100">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl font-playfair mb-6">Project Submission Process</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="submission-step p-6 bg-gray-700 rounded-lg shadow-lg">
+                    <i class="fa fa-pencil-square-o fa-3x text-blue-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Step 1: Register</h3>
+                    <p class="text-gray-400">Create an account on our platform to get started with your project submission.</p>
+                </div>
+                <div class="submission-step p-6 bg-gray-700 rounded-lg shadow-lg">
+                    <i class="fa fa-upload fa-3x text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Step 2: Submit</h3>
+                    <p class="text-gray-400">Fill out the project submission form with all the necessary details and submit your project.</p>
+                </div>
+                <div class="submission-step p-6 bg-gray-700 rounded-lg shadow-lg">
+                    <i class="fa fa-check-circle fa-3x text-yellow-500 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Step 3: Review</h3>
+                    <p class="text-gray-400">Our team will review your submission and get back to you with feedback and next steps.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-gray-900 text-gray-100">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl font-playfair mb-6">Featured Projects</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {% for project in featured_projects %}
+                <div class="featured-project p-6 bg-gray-800 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    <img src="{{ project.image_url }}" alt="{{ project.title }}" class="w-full h-48 object-cover mb-4 rounded">
+                    <h3 class="text-2xl font-semibold mb-2">{{ project.title }}</h3>
+                    <p class="text-gray-400">{{ project.description }}</p>
+                    <a href="{{ project.link }}" class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Read More</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-gray-800 text-gray-100">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl font-playfair mb-6">Student Testimonials</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {% for testimonial in testimonials %}
+                <div class="testimonial p-6 bg-gray-700 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    <img src="{{ testimonial.image_url }}" alt="{{ testimonial.name }}" class="w-20 h-20 rounded-full mx-auto mb-4">
+                    <h3 class="text-xl font-semibold mb-2">{{ testimonial.name }}</h3>
+                    <p class="text-gray-400 mb-4">{{ testimonial.text }}</p>
+                    <div class="text-yellow-400">
+                        {% for i in range(testimonial.rating) %}
+                        <i class="fa fa-star"></i>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-gray-900 text-gray-100">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl font-playfair mb-6">Resources</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for resource in resources %}
+                <div class="resource-card p-6 bg-gray-800 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold mb-2">{{ resource.title }}</h3>
+                    <p class="text-gray-400 mb-4">{{ resource.description }}</p>
+                    <a href="{{ resource.link }}" class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Access Resource</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-gray-800 text-gray-100">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl font-playfair mb-6">Newsletter Subscription</h1>
+            <p class="text-lg text-gray-400 mb-6">Subscribe to our newsletter to stay updated with the latest projects and events.</p>
+            <form class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
+                <input type="email" class="p-3 rounded-lg bg-gray-700 text-gray-100 border border-gray-600 focus:border-blue-500 focus:outline-none" placeholder="Enter your email">
+                <button type="submit" class="p-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold">Subscribe</button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-10">
+        <div class="container mx-auto text-center">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h4 class="text-xl font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'home' %}" class="hover:text-gray-400">Home</a></li>
+                        <li><a href="{% url 'about' %}" class="hover:text-gray-400">About</a></li>
+                        <li><a href="{% url 'sdg-goals' %}" class="hover:text-gray-400">SDG Goals</a></li>
+                        <li><a href="{% url 'submit-project' %}" class="hover:text-gray-400">Submit Project</a></li>
+                        <li><a href="{% url 'resources' %}" class="hover:text-gray-400">Resources</a></li>
+                        <li><a href="{% url 'contact' %}" class="hover:text-gray-400">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-semibold mb-4">Follow Us</h4>
+                    <div class="flex justify-center space-x-4">
+                        <a href="https://www.facebook.com/SairamInstitutions" target="_blank" class="text-white hover:text-gray-400"><i class="fa fa-facebook fa-lg"></i></a>
+                        <a href="https://www.linkedin.com/company/sairam-institutions/" target="_blank" class="text-white hover:text-gray-400"><i class="fa fa-linkedin fa-lg"></i></a>
+                        <a href="https://www.youtube.com/c/sairaminstitutions" target="_blank" class="text-white hover:text-gray-400"><i class="fa fa-youtube fa-lg"></i></a>
+                        <a href="https://twitter.com/SairamInstitute" target="_blank" class="text-white hover:text-gray-400"><i class="fa fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-xl font-semibold mb-4">Contact Us</h4>
+                    <p class="text-gray-400">123 Main Street, City, Country</p>
+                    <p class="text-gray-400">Email: info@studentprojects.com</p>
+                    <p class="text-gray-400">Phone: +123 456 7890</p>
+                </div>
+            </div>
+            <p class="mt-10">&copy; 2024 Student Projects. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/ScrollTrigger.min.js"></script>
+    <script src="{% static 'js/landing_page.js' %}"></script>
+</body>
+</html>
