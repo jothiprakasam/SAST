@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --neon-cyan: #00f0ff;
+  --neon-pink: #ff2dff;
+  --neon-purple: #8b5cf6;
+  --bg-dark: #0b0e14;
+}
+
+/* Apply Playfair Display to all headings for a more professional, elegant look */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  letter-spacing: -0.01em;
+}
+
+/* Keep Inter (or system sans) for body text for readability */
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+
+html,body,#root{ height:100%; }
+
+body {
+  /* Unified deep background: Deepest Dark from Figma */
+  background-color: #0b0e14;
+  color: #eff0f6; /* White-ish text */
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0e14; 
+}
+::-webkit-scrollbar-thumb {
+  background: #2d3748; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4a5568; 
+}
+
+/* Animations */
+.animate-in {
+  animation: animateIn 0.3s ease-in-out forwards;
+}
+
+@keyframes animateIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Glass card (Legacy support, though mostly replaced by solid #1e2330) */
+.card-cyber{
+  background: #1e2330;
+  border-radius: 14px;
+}
+
+/* Card split layout */
+.auth-split{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items:stretch;
+}
+
+.auth-left{ padding: 2rem 2.4rem; display:flex; flex-direction:column; justify-content:center }
+.auth-right{ position:relative; overflow:hidden; border-radius:12px; }
+.auth-right::before{
+  content:''; position:absolute; inset:0; 
+  /* Use a project-provided ashes texture if available (place in frontend/public/ashes.jpg). */
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.32)),
+    url('/ashes.jpg') center/cover no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.18));
+  background-blend-mode: overlay, normal;
+  opacity:0.98; mix-blend-mode:multiply; transform:scale(1.02);
+}
+
+/* Fallback when ashes asset is not present - preserve previous subtle texture */
+@supports (background-image: url("/ashes.jpg")) {
+  /* if the browser supports it, nothing else needed */
+}
+
+
+/* Neon button */
+.btn-neon{
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: .6rem 1rem;
+  border-radius: .6rem;
+  display:inline-flex; align-items:center; gap:.6rem;
+  font-weight:600;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.btn-neon:hover{ transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0,0,0,0.6); filter:brightness(1.06); }
+
+.btn-github{ color: white; background: linear-gradient(90deg,#0f1724,#0b1220); box-shadow: 0 8px 40px rgba(0,0,0,0.6); }
+.btn-google{ color: #0b1220; background: linear-gradient(90deg,#f8f8f8,#e8eefc); box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
+
+/* Input styles */
+.input-field{ background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: .8rem .9rem; border-radius: .6rem; width:100%; color:inherit }
+.input-field::placeholder{ color:#7e98b3 }
+
+/* Glow accents */
+.title-neon{ font-weight:800; letter-spacing: -0.02em; font-size:1.8rem }
+.title-neon .accent{ color: var(--neon-cyan); text-shadow: 0 0 18px rgba(0,240,255,0.28); }
+.subtitle{ color:#9fb0c8; margin-bottom:1rem }
+
+/* responsive container */
+.auth-hero{ max-width:1100px; margin: 3rem auto; padding: 2rem; border-radius: .8rem; }
+
+/* small utility */
+.muted{ color: #9fb0c8; }
+
+/* animated grid */
+@keyframes scanline { 0% { background-position: 0 0 } 100% { background-position: 100% 0 } }
+.scanline{
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.02) 100%);
+  background-size: 200% 100%;
+  animation: scanline 8s linear infinite;
+}
+
+/* Utility for subtle headings and CTA */
+.h-muted{ color:#a7c0d9; font-size:.95rem }
+
+/* Make our title class use Playfair explicitly for emphasis */
+.title-neon{ font-family: 'Playfair Display', serif; font-weight:700; font-size:1.85rem; letter-spacing: -0.02em }
+
+
+/* Centered blurred backdrop behind auth card */
+.auth-center-backdrop{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:5 }
+.auth-center-backdrop .backdrop{
+  width:86%; max-width:1200px; height:640px; border-radius:28px;
+  background: radial-gradient(50% 50% at 50% 40%, rgba(30,40,60,0.55), rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.95) 75%);
+  filter: blur(26px) saturate(115%);
+  opacity:0.78; transform:translateZ(0);
+  box-shadow: 0 40px 120px rgba(2,6,23,0.7);
+  animation: slowDrift 12s ease-in-out infinite;
+}
+@keyframes slowDrift{ 0%{ transform: translateY(0) } 50%{ transform: translateY(-8px) } 100%{ transform: translateY(0) } }
+
+/* make it gentler on small screens */
+@media (max-width: 768px){
+  .auth-center-backdrop .backdrop{ width:92%; height:480px; border-radius:18px; opacity:0.62; filter: blur(20px) saturate(105%); }
+
+  /* Make the card more compact on mobile */
+  .auth-left{ padding: 1.2rem 1rem }
+  .auth-right{ display:none }
+  .w-[600px]{ max-width: 100% }
+}
+
+/* Back button styling for auth pages */
+.auth-back-button{
+  position:absolute; top:1.25rem; left:1.25rem; z-index:40; display:inline-flex; align-items:center; gap:0.5rem; padding:0.4rem 0.75rem; border-radius:0.6rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.04); color:#e6eef8; backdrop-filter: blur(6px); box-shadow: 0 6px 28px rgba(2,6,23,0.6); cursor:pointer; transition: transform .12s ease, background .12s ease;
+}
+.auth-back-button:hover{ transform: translateY(-2px); background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); }
+
+/* Make back button more compact on small screens */
+@media (max-width: 640px){
+  .auth-back-button{ padding:0.36rem 0.6rem; top:0.9rem; left:0.9rem }
+}
+
+/* Responsive rules */
+@media (max-width: 860px){
+  .auth-split{ grid-template-columns: 1fr; }
+  .auth-right{ display:none }
+  .title-neon{ font-size:1.6rem }
+  .auth-left{ padding:1.6rem }
+}
+
+/* Add gentle appearing animation */
+.fade-in{ animation: fadeIn .5s ease both }
+@keyframes fadeIn{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+

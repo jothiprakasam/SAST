@@ -1,0 +1,69 @@
+
+/* 
+  Scanner Loader Component Styles
+  Based on user request, adapted to purely CSS modules style logic 
+  or standard CSS. Since we use Tailwind, I will add custom keyframes here 
+  or use inline styles for dynamic parts. For clean React, I'll put specific styles here.
+*/
+
+.scanner-loader-wrapper p {
+    color: #f2fff0;
+    font-family: inherit; /* Use app font */
+    font-weight: 600;
+    font-size: 3rem; /* 50px */
+    position: relative;
+    font-style: italic;
+    margin: 0;
+    padding: 0;
+}
+
+.scanner-loader-wrapper p span {
+    display: inline-block;
+    animation: scanner-cut 2s infinite;
+    transition: 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* The laser line */
+.scanner-loader-wrapper p::after {
+    position: absolute;
+    content: "";
+    width: 130%; /* slightly wider */
+    height: 6px;
+    border-radius: 4px;
+    background-color: rgba(89, 50, 234, 0.6); /* #5932ea with opacity */
+    top: 0px;
+    left: -15%;
+    filter: blur(8px);
+    animation: scanner-scan 2s infinite;
+    z-index: 0;
+    transition: 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 10px #5932ea;
+}
+
+/* The sharper core of the laser */
+.scanner-loader-wrapper p::before {
+    position: absolute;
+    content: "";
+    width: 130%;
+    height: 3px;
+    border-radius: 4px;
+    background-color: #5932ea;
+    top: 0px;
+    left: -15%;
+    animation: scanner-scan 2s infinite;
+    z-index: 1;
+    filter: opacity(0.9);
+    transition: 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scanner-scan {
+    0% { top: 0px; }
+    50% { top: 100%; }
+    100% { top: 0px; }
+}
+
+@keyframes scanner-cut {
+    0% { clip-path: inset(0 0 0 0); color: #9197b3; }
+    50% { clip-path: inset(0 0 0 0); color: #ffffff; }
+    100% { clip-path: inset(0 0 0 0); color: #9197b3; }
+}

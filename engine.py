@@ -270,14 +270,20 @@ def scan_directory(directory_path):
         with open(req_path, 'r', encoding='utf-8') as f:
             lines = [line.strip() for line in f if line.strip() and not line.startswith('#')]
         dependencies = {}
+        import re
         for line in lines:
-            if '==' in line:
-                parts = line.split('==')
-                pkg = parts[0].strip()
-                ver = parts[1].strip()
-                dependencies[pkg] = ver
-            else:
-                dependencies[line.strip()] = None
+            # Simple regex to grab the package name (START of string until we hit a non-pkg char)
+            # Standard python packaging names: letters, numbers, _, -, .
+            match = re.match(r'^([a-zA-Z0-9_\-\.]+)', line)
+            if match:
+                pkg_name = match.group(1)
+                # Try to extract version if == is present, else None
+                ver = None
+                if '==' in line:
+                    parts = line.split('==')
+                    if len(parts) > 1:
+                        ver = parts[1].strip()
+                dependencies[pkg_name] = ver
 
         for pkg, ver in dependencies.items():
             # Check for vulnerabilities
