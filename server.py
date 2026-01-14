@@ -907,5 +907,8 @@ async def auth_callback_bridge():
     return HTMLResponse(content=html, status_code=302, headers={"Location": target})
 
 if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    reload = os.environ.get("RELOAD", "false").lower() == "true"
     print("Starting FastAPI server...")
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("server:app", host="0.0.0.0", port=port, reload=reload)
