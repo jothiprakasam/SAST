@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aegis SAST - Source Code Vulnerability Scanner</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/styles.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sast: {
+              dark: '#0a0e17',
+              card: '#111827',
+              border: '#1e293b',
+              cyan: '#06b6d4',
+              blue: '#3b82f6',
+              purple: '#8b5cf6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#0a0e17] text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- ─── Top Navigation Header ─────────────────────────────────────────────── -->
+  <header class="border-b border-slate-800 bg-[#0e1424]/90 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+          <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Aegis SAST</span>
+            <span class="text-xs bg-cyan-950 text-cyan-400 border border-cyan-800 px-2 py-0.5 rounded-full font-semibold">v2.0</span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">Static Application Security Testing & Threat Intelligence</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center space-x-1 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
+        <button id="nav-btn-project" onclick="switchMainTab('project')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+          <i data-lucide="folder-git-2" class="w-4 h-4"></i>
+          <span>Local Project Scan</span>
+        </button>
+        <button id="nav-btn-file" onclick="switchMainTab('file')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800">
+          <i data-lucide="file-code" class="w-4 h-4"></i>
+          <span>Single File Scan</span>
+        </button>
+        <button id="nav-btn-ast" onclick="switchMainTab('ast')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800">
+          <i data-lucide="git-fork" class="w-4 h-4"></i>
+          <span>AST & Memory</span>
+        </button>
+        <button id="nav-btn-rag" onclick="switchMainTab('rag')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800">
+          <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+          <span>AI & KEV Threat Intel</span>
+        </button>
+        <button id="nav-btn-rules" onclick="switchMainTab('rules')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span>Rules</span>
+        </button>
+      </nav>
+
+      <!-- System Status & Actions -->
+      <div class="flex items-center space-x-3">
+        <div id="status-badge" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/70 border border-emerald-800 text-emerald-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="status-text">Engine Ready</span>
+        </div>
+        <button onclick="openConfigModal()" title="Gemini & System Settings" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Nav Bar -->
+    <div class="md:hidden flex overflow-x-auto px-4 py-2 space-x-2 border-t border-slate-800 bg-slate-900">
+      <button onclick="switchMainTab('project')" class="px-3 py-1 text-xs rounded-md bg-cyan-900/60 text-cyan-300 whitespace-nowrap">Local Project</button>
+      <button onclick="switchMainTab('file')" class="px-3 py-1 text-xs rounded-md bg-slate-800 text-slate-300 whitespace-nowrap">Single File</button>
+      <button onclick="switchMainTab('ast')" class="px-3 py-1 text-xs rounded-md bg-slate-800 text-slate-300 whitespace-nowrap">AST & Memory</button>
+      <button onclick="switchMainTab('rag')" class="px-3 py-1 text-xs rounded-md bg-slate-800 text-slate-300 whitespace-nowrap">AI & KEV Intel</button>
+      <button onclick="switchMainTab('rules')" class="px-3 py-1 text-xs rounded-md bg-slate-800 text-slate-300 whitespace-nowrap">Rules</button>
+    </div>
+  </header>
+
+  <!-- ─── Main Content Area ─────────────────────────────────────────────────── -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- TAB 1: LOCAL PROJECT SCAN                                               -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <section id="tab-project" class="space-y-6">
+      <!-- Target Configuration Card -->
+      <div class="card-glass p-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex-1">
+            <label class="block text-sm font-semibold text-slate-300 mb-2 flex items-center space-x-2">
+              <i data-lucide="folder-search" class="w-4 h-4 text-cyan-400"></i>
+              <span>Target Project Directory</span>
+            </label>
+            <div class="flex items-center space-x-2">
+              <div class="relative flex-1">
+                <i data-lucide="folder" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+                <input id="project-path-input" type="text" value="./project_test" placeholder="e.g. C:\Users\project or ./project_test" class="w-full bg-[#0b111e] border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+              </div>
+              <button onclick="openDirExplorerModal()" class="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-sm font-medium transition flex items-center space-x-1.5" title="Browse local folders">
+                <i data-lucide="folder-tree" class="w-4 h-4 text-cyan-400"></i>
+                <span class="hidden sm:inline">Browse</span>
+              </button>
+              <button id="btn-scan-project" onclick="startProjectScan()" class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white rounded-lg text-sm font-semibold transition shadow-lg shadow-cyan-500/25 flex items-center space-x-2">
+                <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                <span>Scan Project</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Directory Chips -->
+        <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+          <span class="font-medium text-slate-500">Quick Targets:</span>
+          <button onclick="setProjectPath('./project_test')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">./project_test</button>
+          <button onclick="setProjectPath('.')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">Current Repo (./)</button>
+          <span class="text-slate-600">|</span>
+          <span class="text-slate-500">Or drag & drop a .zip file:</span>
+          <label class="cursor-pointer text-cyan-400 hover:text-cyan-300 underline font-medium">
+            Upload ZIP
+            <input type="file" id="zip-upload-input" accept=".zip" class="hidden" onchange="handleZipUpload(event)">
+          </label>
+        </div>
+      </div>
+
+      <!-- Scan Progress / Loading Spinner -->
+      <div id="project-scan-loading" class="hidden card-glass p-8 text-center space-y-4">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-800 animate-spin">
+          <i data-lucide="loader-2" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white">Scanning Codebase...</h3>
+          <p class="text-sm text-slate-400">Parsing ASTs, traversing call-graphs, evaluating sinks & dependencies...</p>
+        </div>
+      </div>
+
+      <!-- Project Results Container -->
+      <div id="project-results-container" class="hidden space-y-6">
+        <!-- Executive Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- Health Score Card -->
+          <div class="card-glass p-5 flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-wider text-slate-400 font-bold">Security Score</p>
+              <h2 id="proj-score-text" class="text-3xl font-extrabold text-emerald-400 mt-1">92 / 100</h2>
+              <p id="proj-grade-text" class="text-xs text-slate-400 mt-0.5">Rating: <span class="text-emerald-400 font-semibold">Grade A</span></p>
+            </div>
+            <div class="w-14 h-14 rounded-2xl bg-emerald-950/50 border border-emerald-800/60 flex items-center justify-center">
+              <i data-lucide="shield" class="w-7 h-7 text-emerald-400"></i>
+            </div>
+          </div>
+
+          <!-- Total Findings Card -->
+          <div class="card-glass p-5 flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-wider text-slate-400 font-bold">Total Findings</p>
+              <h2 id="proj-total-findings" class="text-3xl font-extrabold text-white mt-1">5</h2>
+              <p id="proj-files-impacted" class="text-xs text-slate-400 mt-0.5">Across 3 files</p>
+            </div>
+            <div class="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center">
+              <i data-lucide="alert-triangle" class="w-7 h-7 text-amber-400"></i>
+            </div>
+          </div>
+
+          <!-- High & Critical Severity Card -->
+          <div class="card-glass p-5 flex items-center justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-wider text-slate-400 font-bold">Critical & High</p>
+              <h2 id="proj-crit-high-count" class="text-3xl font-extrabold text-rose-400 mt-1">1</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Immediate action required</p>
+            </div>
+            <div class="w-14 h-14 rounded-2xl bg-rose-950/50 border border-rose-800/60 flex items-center justify-center">
+              <i data-lucide="flame" class="w-7 h-7 text-rose-400"></i>
+            </div>
+          </div>
+
+          <!-- Action & Export Card -->
+          <div class="card-glass p-5 flex flex-col justify-center space-y-2">
+            <button onclick="exportReportJSON()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition flex items-center justify-center space-x-1.5">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Export JSON Report</span>
+            </button>
+            <button onclick="window.print()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition flex items-center justify-center space-x-1.5">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+              <span>Print / Save as PDF</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Severity Breakdown Bar -->
+        <div class="card-glass p-4">
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-400 mb-2">
+            <span>Severity Distribution</span>
+            <span id="proj-severity-stats">0 Critical • 1 High • 1 Medium • 3 Low</span>
+          </div>
+          <div class="w-full h-3 bg-slate-900 rounded-full flex overflow-hidden">
+            <div id="bar-crit" class="bg-rose-500 h-full transition-all" style="width: 0%"></div>
+            <div id="bar-high" class="bg-orange-500 h-full transition-all" style="width: 20%"></div>
+            <div id="bar-med" class="bg-amber-400 h-full transition-all" style="width: 20%"></div>
+            <div id="bar-low" class="bg-blue-500 h-full transition-all" style="width: 60%"></div>
+            <div id="bar-info" class="bg-slate-500 h-full transition-all" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="relative w-full sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-3"></i>
+            <input id="proj-search-input" oninput="filterProjectFindings()" type="text" placeholder="Search vulnerability, CWE, file..." class="w-full bg-[#0b111e] border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+          </div>
+          <div class="flex items-center space-x-2 w-full sm:w-auto">
+            <!-- Severity Filter -->
+            <select id="proj-severity-filter" onchange="filterProjectFindings()" class="bg-[#0b111e] border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-cyan-500">
+              <option value="ALL">All Severities</option>
+              <option value="CRITICAL">Critical</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
+              <option value="INFO">Info</option>
+            </select>
+            <!-- Category Filter -->
+            <select id="proj-category-filter" onchange="filterProjectFindings()" class="bg-[#0b111e] border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-cyan-500">
+              <option value="ALL">All Categories</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Findings List -->
+        <div id="proj-findings-list" class="space-y-4">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- TAB 2: SINGLE FILE SCAN                                                 -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <section id="tab-file" class="hidden space-y-6">
+      <div class="card-glass p-5">
+        <!-- Sub-mode Selector -->
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+          <div class="flex space-x-2 bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs font-semibold">
+            <button id="file-sub-editor" onclick="switchFileSubMode('editor')" class="px-3 py-1.5 rounded-md bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+              Code Snippet / Editor
+            </button>
+            <button id="file-sub-path" onclick="switchFileSubMode('path')" class="px-3 py-1.5 rounded-md text-slate-400 hover:text-white">
+              Local File Path
+            </button>
+            <button id="file-sub-upload" onclick="switchFileSubMode('upload')" class="px-3 py-1.5 rounded-md text-slate-400 hover:text-white">
+              Upload File (.py)
+            </button>
+          </div>
+          <div class="text-xs text-slate-500 hidden sm:block">
+            Static AST Analyzer • Zero execution risk
+          </div>
+        </div>
+
+        <!-- Sub-mode 1: Code Editor -->
+        <div id="file-mode-editor" class="space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center space-x-2">
+              <span class="text-xs text-slate-400 font-medium">Load Vulnerability Preset:</span>
+              <select id="preset-select" onchange="loadPresetSample()" class="bg-[#0b111e] border border-slate-700 rounded-md px-2.5 py-1 text-xs text-cyan-400 font-medium focus:outline-none focus:border-cyan-500">
+                <option value="">-- Choose Preset Example --</option>
+                <option value="cmdi">Command Injection (subprocess shell=True)</option>
+                <option value="sqli">SQL Injection (String Concatenation)</option>
+                <option value="pickle">Insecure Deserialization (pickle.loads)</option>
+                <option value="secrets">Hardcoded Secret / API Token</option>
+                <option value="crypto">Weak Cryptography (hashlib.md5)</option>
+                <option value="tempfile">Insecure Temp File (tempfile.mktemp)</option>
+                <option value="debug">Insecure Debug Flag (DEBUG = True)</option>
+              </select>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="clearEditor()" class="text-xs text-slate-400 hover:text-slate-200 px-2 py-1 bg-slate-800 rounded border border-slate-700">Clear</button>
+              <button onclick="copyEditor()" class="text-xs text-slate-400 hover:text-slate-200 px-2 py-1 bg-slate-800 rounded border border-slate-700">Copy</button>
+            </div>
+          </div>
+
+          <!-- Code Editor Box -->
+          <div class="editor-container">
+            <div id="editor-gutter" class="editor-gutter">1</div>
+            <textarea id="code-editor" class="editor-textarea" placeholder="Paste your Python source code here..." oninput="updateGutter()" onkeydown="handleEditorTab(event)" spellcheck="false"></textarea>
+          </div>
+
+          <div class="flex justify-between items-center pt-2">
+            <span class="text-xs text-slate-500">Tip: Press <kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300 font-mono">Ctrl+Enter</kbd> to run scan</span>
+            <button onclick="scanCodeSnippet()" class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-lg text-sm shadow-lg shadow-cyan-500/25 flex items-center space-x-2">
+              <i data-lucide="zap" class="w-4 h-4 fill-current"></i>
+              <span>Scan Snippet</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sub-mode 2: Local File Path -->
+        <div id="file-mode-path" class="hidden space-y-4">
+          <label class="block text-sm font-semibold text-slate-300">Absolute or Relative File Path</label>
+          <div class="flex items-center space-x-2">
+            <div class="relative flex-1">
+              <i data-lucide="file" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+              <input id="single-file-path-input" type="text" placeholder="e.g. ./project_test/mysite/mysite/settings.py" class="w-full bg-[#0b111e] border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+            </div>
+            <button onclick="scanFilePath()" class="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg text-sm transition flex items-center space-x-2">
+              <i data-lucide="scan" class="w-4 h-4"></i>
+              <span>Scan File</span>
+            </button>
+          </div>
+          <!-- Quick File Links from project_test -->
+          <div class="text-xs text-slate-400 space-y-1">
+            <span class="font-medium text-slate-500">Quick Test Files:</span>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button onclick="setSingleFilePath('./project_test/mysite/mysite/settings.py')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 text-slate-300">settings.py (Secrets & Debug)</button>
+              <button onclick="setSingleFilePath('./project_test/mysite/manage.py')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 text-slate-300">manage.py (Environ Access)</button>
+              <button onclick="setSingleFilePath('./engine.py')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 text-slate-300">engine.py (Self Scan)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-mode 3: File Upload -->
+        <div id="file-mode-upload" class="hidden space-y-4">
+          <div id="drop-zone" class="border-2 border-dashed border-slate-700 hover:border-cyan-500 rounded-xl p-8 text-center transition bg-[#0b111e]/50 cursor-pointer" onclick="document.getElementById('file-upload-input').click()">
+            <i data-lucide="upload-cloud" class="w-10 h-10 text-cyan-400 mx-auto mb-2"></i>
+            <h4 class="text-sm font-semibold text-slate-200">Click to upload or drag & drop Python file</h4>
+            <p class="text-xs text-slate-500 mt-1">Supports single .py files up to 25MB</p>
+            <input type="file" id="file-upload-input" accept=".py" class="hidden" onchange="handleSingleFileUpload(event)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Single File Results -->
+      <div id="file-results-container" class="hidden space-y-6">
+        <!-- Summary Header -->
+        <div class="card-glass p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs uppercase tracking-wider text-cyan-400 font-bold">Single File Scan Result</span>
+              <span id="file-res-filename" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">snippet.py</span>
+            </div>
+            <h3 id="file-res-summary" class="text-2xl font-extrabold text-white mt-1">Found 2 Security Vulnerabilities</h3>
+            <p id="file-res-stats" class="text-xs text-slate-400 mt-0.5">Health Score: 60/100 • 1 Critical, 1 High</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <button onclick="viewAstOfCurrentFile()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-slate-200 transition flex items-center space-x-1.5">
+              <i data-lucide="git-fork" class="w-3.5 h-3.5 text-cyan-400"></i>
+              <span>Inspect AST</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Finding Cards List -->
+        <div id="file-findings-list" class="space-y-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- TAB 3: AST & MEMORY INSPECTOR                                           -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <section id="tab-ast" class="hidden space-y-6">
+      <div class="card-glass p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+              <i data-lucide="cpu" class="w-5 h-5 text-purple-400"></i>
+              <span>AST Call-Graph & Object Memory Model</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Performs structural AST parsing, recursive call graph cycle detection, and memory consumption heuristics.</p>
+          </div>
+          <button onclick="loadAstData()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1.5">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Analyze AST & Memory</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- AST Metrics & Call Graph -->
+      <div id="ast-content-container" class="space-y-6">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="card-glass p-4">
+            <p class="text-xs font-bold text-slate-400 uppercase">Files Scanned</p>
+            <h4 id="ast-files-count" class="text-2xl font-extrabold text-white mt-1">-</h4>
+            <p class="text-xs text-slate-500 mt-0.5">Python modules</p>
+          </div>
+          <div class="card-glass p-4">
+            <p class="text-xs font-bold text-slate-400 uppercase">Estimated AST RAM</p>
+            <h4 id="ast-ram-estimate" class="text-2xl font-extrabold text-purple-400 mt-1">-</h4>
+            <p class="text-xs text-slate-500 mt-0.5">Heuristic memory footprint</p>
+          </div>
+          <div class="card-glass p-4">
+            <p class="text-xs font-bold text-slate-400 uppercase">Call Graph Cycles</p>
+            <h4 id="ast-recursion-status" class="text-2xl font-extrabold text-emerald-400 mt-1">None Detected</h4>
+            <p class="text-xs text-slate-500 mt-0.5">Safe from recursion overflow</p>
+          </div>
+        </div>
+
+        <!-- Files Call Graph & AST Explorer -->
+        <div class="card-glass p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-sm font-bold text-slate-300">File Modules & Functions</h4>
+            <span class="text-xs text-slate-500">Click a file to view call graph & classes</span>
+          </div>
+          <div id="ast-files-accordion" class="space-y-2">
+            <!-- Populated via JS -->
+            <p class="text-xs text-slate-500 py-4 text-center">Click "Analyze AST & Memory" to inspect project structure.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- TAB 4: AI & KEV THREAT INTELLIGENCE (RAG)                               -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <section id="tab-rag" class="hidden space-y-6">
+      <div class="card-glass p-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              <h3 class="text-lg font-bold text-white">AI-Powered Threat Intelligence (CISA KEV + Gemini)</h3>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 max-w-2xl">
+              Cross-references static findings from your codebase against the official <strong class="text-slate-300">CISA Known Exploited Vulnerabilities (KEV)</strong> catalog. Google Gemini correlates real-world attacker exploitation campaigns with your detected weaknesses.
+            </p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="openConfigModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5">
+              <i data-lucide="key" class="w-3.5 h-3.5 text-cyan-400"></i>
+              <span>Set Gemini Key</span>
+            </button>
+            <button onclick="runRagCveAnalysis()" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg text-xs font-bold transition shadow-lg shadow-blue-600/25 flex items-center space-x-1.5">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>Generate Threat Report</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State for RAG -->
+      <div id="rag-loading" class="hidden card-glass p-10 text-center space-y-4">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-950/80 text-blue-400 border border-blue-800 animate-spin">
+          <i data-lucide="loader-2" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h4 class="text-base font-bold text-white">Synthesizing Threat Intelligence...</h4>
+          <p class="text-xs text-slate-400 mt-1">Fetching CISA KEV catalog • Correlating static findings • Querying Gemini...</p>
+        </div>
+      </div>
+
+      <!-- RAG Results Container -->
+      <div id="rag-results" class="hidden space-y-6">
+        <div class="card-glass p-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="shield-alert" class="w-5 h-5 text-cyan-400"></i>
+              <h4 class="text-base font-bold text-white">Correlated Threat Analysis</h4>
+            </div>
+            <span id="rag-model-badge" class="text-xs bg-slate-800 text-cyan-400 border border-slate-700 px-2.5 py-1 rounded-full font-mono">gemini-2.5-flash</span>
+          </div>
+          <!-- Formatted Markdown Output -->
+          <div id="rag-analysis-text" class="prose prose-invert max-w-none text-sm text-slate-300 leading-relaxed space-y-3 whitespace-pre-wrap font-sans">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- TAB 5: RULES CATALOG                                                    -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <section id="tab-rules" class="hidden space-y-6">
+      <div class="card-glass p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+              <i data-lucide="book-open" class="w-5 h-5 text-cyan-400"></i>
+              <span>Active SAST Detection Rules</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Comprehensive AST pattern-matching rules, CWE taxonomy references, and remediation guides.</p>
+          </div>
+          <div class="w-full sm:w-64">
+            <input id="rules-search" oninput="filterRulesCatalog()" type="text" placeholder="Search rules..." class="w-full bg-[#0b111e] border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+          </div>
+        </div>
+      </div>
+
+      <div id="rules-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Populated via JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─── Modals ───────────────────────────────────────────────────────────── -->
+
+  <!-- Modal 1: Filesystem Directory Explorer -->
+  <div id="modal-explorer" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="card-glass w-full max-w-2xl p-6 space-y-4 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center space-x-2">
+          <i data-lucide="folder-tree" class="w-5 h-5 text-cyan-400"></i>
+          <span>Local Directory Explorer</span>
+        </h3>
+        <button onclick="closeDirExplorerModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Current Path Bar -->
+      <div class="flex items-center space-x-2 text-xs bg-[#0b111e] p-2.5 rounded-lg border border-slate-800 font-mono text-slate-300">
+        <span class="text-slate-500">Path:</span>
+        <span id="explorer-current-path" class="truncate flex-1">C:\</span>
+        <button id="explorer-btn-parent" onclick="navigateExplorerParent()" class="text-cyan-400 hover:text-cyan-300 px-2 py-0.5 bg-slate-800 rounded">Up</button>
+      </div>
+
+      <!-- Directory & File List -->
+      <div id="explorer-list" class="flex-1 overflow-y-auto space-y-1 pr-1 min-h-[250px] max-h-[350px]">
+        <!-- Populated via JS -->
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-between border-t border-slate-800 pt-3">
+        <span class="text-xs text-slate-500" id="explorer-py-count">0 Python files found</span>
+        <div class="flex space-x-2">
+          <button onclick="closeDirExplorerModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Cancel</button>
+          <button onclick="confirmSelectedDirectory()" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold">Select This Directory</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Configuration & Gemini API Key -->
+  <div id="modal-config" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="card-glass w-full max-w-md p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center space-x-2">
+          <i data-lucide="settings" class="w-5 h-5 text-cyan-400"></i>
+          <span>Settings & Gemini AI Key</span>
+        </h3>
+        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <label class="block text-xs font-semibold text-slate-300">
+          Google Gemini API Key (Optional)
+        </label>
+        <input id="cfg-gemini-key" type="password" placeholder="AIzaSy..." class="w-full bg-[#0b111e] border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+        <p class="text-xs text-slate-400">
+          Used solely for correlating static scan findings with CISA Known Exploited Vulnerabilities via Gemini. Static file and project scans work 100% locally without any API key.
+        </p>
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-2 border-t border-slate-800">
+        <button onclick="closeConfigModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Close</button>
+        <button onclick="saveGeminiKey()" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold">Save Key</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: AST Viewer Modal -->
+  <div id="modal-ast-view" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="card-glass w-full max-w-4xl p-6 space-y-4 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center space-x-2">
+          <i data-lucide="git-fork" class="w-5 h-5 text-purple-400"></i>
+          <span id="ast-modal-title">AST Tree Inspector</span>
+        </h3>
+        <button onclick="closeAstModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="flex-1 overflow-auto bg-[#070a12] p-4 rounded-lg border border-slate-800 font-mono text-xs text-slate-300">
+        <pre id="ast-modal-content">Loading AST structure...</pre>
+      </div>
+      <div class="flex justify-end pt-2">
+        <button onclick="closeAstModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 border border-slate-700 text-slate-100 text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2.5">
+    <i id="toast-icon" data-lucide="info" class="w-4 h-4 text-cyan-400"></i>
+    <span id="toast-message">Notification</span>
+  </div>
+
+  <!-- App Script -->
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+:root {
+  --bg-main: #0a0e17;
+  --bg-card: #111827;
+  --bg-card-hover: #172136;
+  --bg-input: #0b111e;
+  --border-color: #1e293b;
+  --border-glow: #38bdf840;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent-cyan: #06b6d4;
+  --accent-blue: #3b82f6;
+  --sev-critical: #ef4444;
+  --sev-high: #f97316;
+  --sev-medium: #eab308;
+  --sev-low: #3b82f6;
+  --sev-info: #64748b;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0b111e;
+}
+::-webkit-scrollbar-thumb {
+  background: #253347;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3b4d66;
+}
+
+/* Glass & Card Effects */
+.card-glass {
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.card-glass:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+/* Severity Badges */
+.badge-critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.badge-high {
+  background: rgba(249, 115, 22, 0.15);
+  color: #fdba74;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+}
+
+.badge-medium {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fde047;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+}
+
+.badge-low {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.badge-info {
+  background: rgba(100, 116, 139, 0.15);
+  color: #cbd5e1;
+  border: 1px solid rgba(100, 116, 139, 0.4);
+}
+
+/* Left border indicator for finding card */
+.finding-card-critical {
+  border-left: 4px solid var(--sev-critical);
+}
+.finding-card-high {
+  border-left: 4px solid var(--sev-high);
+}
+.finding-card-medium {
+  border-left: 4px solid var(--sev-medium);
+}
+.finding-card-low {
+  border-left: 4px solid var(--sev-low);
+}
+.finding-card-info {
+  border-left: 4px solid var(--sev-info);
+}
+
+/* Code Snippet Display */
+.code-box {
+  background: #070a12;
+  border: 1px solid #1a2333;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.code-line {
+  display: flex;
+  padding: 2px 12px;
+  min-height: 24px;
+}
+
+.code-line.target {
+  background: rgba(239, 68, 68, 0.18);
+  border-left: 3px solid #ef4444;
+  color: #fecaca;
+  font-weight: 600;
+}
+
+.line-num {
+  width: 44px;
+  color: #475569;
+  user-select: none;
+  text-align: right;
+  padding-right: 16px;
+  flex-shrink: 0;
+}
+
+.code-text {
+  flex-grow: 1;
+  white-space: pre;
+}
+
+/* Editor with line numbers */
+.editor-container {
+  display: flex;
+  background: #070a12;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  height: 380px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  overflow: hidden;
+}
+
+.editor-gutter {
+  width: 48px;
+  background: #090e18;
+  color: #475569;
+  text-align: right;
+  padding: 12px 10px;
+  user-select: none;
+  border-right: 1px solid #1e293b;
+  overflow-y: hidden;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.editor-textarea {
+  flex: 1;
+  background: transparent;
+  color: #f8fafc;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  tab-size: 4;
+  white-space: pre;
+  overflow-y: auto;
+}
+
+/* Score Circle Gauge */
+.score-circle {
+  position: relative;
+  width: 110px;
+  height: 110px;
+}
+
+.score-circle svg {
+  transform: rotate(-90deg);
+}
+
+.score-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Pulse animation for running scan */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
+  }
+}
+
+.scanning-glow {
+  animation: pulse-glow 1.5s infinite;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .card-glass {
+    background: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+  }
+  .code-box {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  .code-line.target {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+  }
+}
