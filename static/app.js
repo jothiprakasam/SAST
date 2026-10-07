@@ -3,13 +3,13 @@
 const API_BASE = window.location.origin;
 
 let state = {
-  currentTab: 'project',
-  fileSubMode: 'editor',
+  currentTab: "project",
+  fileSubMode: "editor",
   lastProjectResult: null,
   lastFileResult: null,
-  explorerCurrentPath: '.',
+  explorerCurrentPath: ".",
   rulesList: [],
-  geminiConfigured: false
+  geminiConfigured: false,
 };
 
 // Preset Vulnerability Samples for 1-click testing
@@ -47,7 +47,7 @@ def restore_session_state(raw_session_bytes):
 # HIGH: Hardcoding production credentials or keys in source code leads to credential leaks in version control
 AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 DATABASE_PASSWORD = "SuperSecretProductionPassword2026!"
-STRIPE_API_TOKEN = "sk_live_51Nz8ABCDEF1234567890abcdef"
+STRIPE_API_TOKEN = "pk_test_placeholder"
 `,
   crypto: `# Vulnerability Example: Weak Cryptography (CWE-327)
 import hashlib
@@ -73,7 +73,7 @@ def write_staging_data(content):
 DEBUG = True
 SECRET_KEY = "django-insecure-temp-key-for-local-testing"
 ALLOWED_HOSTS = ["*"]
-`
+`,
 };
 
 // ─── Initialization ─────────────────────────────────────────────────────────
@@ -118,14 +118,16 @@ async function checkHealth() {
       const data = await res.json();
       const badge = document.getElementById("status-badge");
       const text = document.getElementById("status-text");
-      badge.className = "flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/70 border border-emerald-800 text-emerald-400";
+      badge.className =
+        "flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/70 border border-emerald-800 text-emerald-400";
       text.innerText = "Engine Ready";
       state.geminiConfigured = data.gemini_configured;
     }
   } catch (err) {
     const badge = document.getElementById("status-badge");
     const text = document.getElementById("status-text");
-    badge.className = "flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-950/70 border border-rose-800 text-rose-400";
+    badge.className =
+      "flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-950/70 border border-rose-800 text-rose-400";
     text.innerText = "Server Disconnected";
   }
 }
@@ -134,20 +136,22 @@ async function checkHealth() {
 
 function switchMainTab(tabName) {
   state.currentTab = tabName;
-  const tabs = ['project', 'file', 'ast', 'rag', 'rules'];
-  
-  tabs.forEach(t => {
+  const tabs = ["project", "file", "ast", "rag", "rules"];
+
+  tabs.forEach((t) => {
     const el = document.getElementById(`tab-${t}`);
     const btn = document.getElementById(`nav-btn-${t}`);
     if (t === tabName) {
-      el.classList.remove('hidden');
+      el.classList.remove("hidden");
       if (btn) {
-        btn.className = "px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
+        btn.className =
+          "px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
       }
     } else {
-      el.classList.add('hidden');
+      el.classList.add("hidden");
       if (btn) {
-        btn.className = "px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800";
+        btn.className =
+          "px-4 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-800";
       }
     }
   });
@@ -156,16 +160,17 @@ function switchMainTab(tabName) {
 
 function switchFileSubMode(mode) {
   state.fileSubMode = mode;
-  const modes = ['editor', 'path', 'upload'];
+  const modes = ["editor", "path", "upload"];
 
-  modes.forEach(m => {
+  modes.forEach((m) => {
     const el = document.getElementById(`file-mode-${m}`);
     const btn = document.getElementById(`file-sub-${m}`);
     if (m === mode) {
-      el.classList.remove('hidden');
-      btn.className = "px-3 py-1.5 rounded-md bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
+      el.classList.remove("hidden");
+      btn.className =
+        "px-3 py-1.5 rounded-md bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
     } else {
-      el.classList.add('hidden');
+      el.classList.add("hidden");
       btn.className = "px-3 py-1.5 rounded-md text-slate-400 hover:text-white";
     }
   });
@@ -195,7 +200,7 @@ async function startProjectScan() {
     const res = await fetch(`${API_BASE}/api/scan/project`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ project_path: projectPath })
+      body: JSON.stringify({ project_path: projectPath }),
     });
 
     if (!res.ok) {
@@ -229,7 +234,7 @@ async function handleZipUpload(event) {
   try {
     const res = await fetch(`${API_BASE}/api/scan/upload`, {
       method: "POST",
-      body: formData
+      body: formData,
     });
 
     if (!res.ok) {
@@ -240,7 +245,10 @@ async function handleZipUpload(event) {
     const data = await res.json();
     state.lastProjectResult = data;
     renderProjectResults(data);
-    showToast(`Zip scan complete: Found ${data.total_findings} issues`, "success");
+    showToast(
+      `Zip scan complete: Found ${data.total_findings} issues`,
+      "success",
+    );
   } catch (err) {
     showToast(err.message, "error");
   } finally {
@@ -260,17 +268,28 @@ function renderProjectResults(data) {
   scoreText.innerText = `${score} / 100`;
   let grade = "Grade A";
   let colorClass = "text-emerald-400";
-  if (score < 50) { grade = "Grade F"; colorClass = "text-rose-400"; }
-  else if (score < 70) { grade = "Grade D"; colorClass = "text-orange-400"; }
-  else if (score < 80) { grade = "Grade C"; colorClass = "text-amber-400"; }
-  else if (score < 90) { grade = "Grade B"; colorClass = "text-cyan-400"; }
+  if (score < 50) {
+    grade = "Grade F";
+    colorClass = "text-rose-400";
+  } else if (score < 70) {
+    grade = "Grade D";
+    colorClass = "text-orange-400";
+  } else if (score < 80) {
+    grade = "Grade C";
+    colorClass = "text-amber-400";
+  } else if (score < 90) {
+    grade = "Grade B";
+    colorClass = "text-cyan-400";
+  }
 
   scoreText.className = `text-3xl font-extrabold mt-1 ${colorClass}`;
   gradeText.innerHTML = `Rating: <span class="${colorClass} font-semibold">${grade}</span>`;
 
   // Counters
-  document.getElementById("proj-total-findings").innerText = data.total_findings || 0;
-  document.getElementById("proj-files-impacted").innerText = `Across ${data.files_with_issues_count || 1} files`;
+  document.getElementById("proj-total-findings").innerText =
+    data.total_findings || 0;
+  document.getElementById("proj-files-impacted").innerText =
+    `Across ${data.files_with_issues_count || 1} files`;
 
   const stats = data.stats || {};
   const critHigh = (stats.CRITICAL || 0) + (stats.HIGH || 0);
@@ -309,12 +328,14 @@ function renderProjectResults(data) {
 function filterProjectFindings() {
   if (!state.lastProjectResult) return;
 
-  const query = document.getElementById("proj-search-input").value.toLowerCase();
+  const query = document
+    .getElementById("proj-search-input")
+    .value.toLowerCase();
   const sevFilter = document.getElementById("proj-severity-filter").value;
   const catFilter = document.getElementById("proj-category-filter").value;
 
   const findings = state.lastProjectResult.findings || [];
-  const filtered = findings.filter(f => {
+  const filtered = findings.filter((f) => {
     if (sevFilter !== "ALL" && f.severity !== sevFilter) return false;
     if (catFilter !== "ALL" && f.category !== catFilter) return false;
     if (query) {
@@ -340,7 +361,7 @@ function filterProjectFindings() {
     return;
   }
 
-  container.innerHTML = filtered.map(f => createFindingCardHTML(f)).join("");
+  container.innerHTML = filtered.map((f) => createFindingCardHTML(f)).join("");
   initLucide();
 }
 
@@ -365,7 +386,10 @@ function handleEditorTab(e) {
     const textarea = e.target;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    textarea.value = textarea.value.substring(0, start) + "    " + textarea.value.substring(end);
+    textarea.value =
+      textarea.value.substring(0, start) +
+      "    " +
+      textarea.value.substring(end);
     textarea.selectionStart = textarea.selectionEnd = start + 4;
     updateGutter();
   }
@@ -408,7 +432,7 @@ async function scanCodeSnippet() {
     const res = await fetch(`${API_BASE}/api/scan/code`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: code, filename: "snippet.py" })
+      body: JSON.stringify({ code: code, filename: "snippet.py" }),
     });
 
     if (!res.ok) {
@@ -419,7 +443,10 @@ async function scanCodeSnippet() {
     const data = await res.json();
     state.lastFileResult = data;
     renderFileResults(data);
-    showToast(`Snippet scanned: ${data.total_findings} issues found`, "success");
+    showToast(
+      `Snippet scanned: ${data.total_findings} issues found`,
+      "success",
+    );
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -436,7 +463,7 @@ async function scanFilePath() {
     const res = await fetch(`${API_BASE}/api/scan/file`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ file_path: path })
+      body: JSON.stringify({ file_path: path }),
     });
 
     if (!res.ok) {
@@ -463,7 +490,7 @@ async function handleSingleFileUpload(event) {
   try {
     const res = await fetch(`${API_BASE}/api/scan/upload`, {
       method: "POST",
-      body: formData
+      body: formData,
     });
 
     if (!res.ok) {
@@ -474,7 +501,10 @@ async function handleSingleFileUpload(event) {
     const data = await res.json();
     state.lastFileResult = data;
     renderFileResults(data);
-    showToast(`Uploaded file scanned: ${data.total_findings} issues found`, "success");
+    showToast(
+      `Uploaded file scanned: ${data.total_findings} issues found`,
+      "success",
+    );
   } catch (err) {
     showToast(err.message, "error");
   }
@@ -484,13 +514,16 @@ function renderFileResults(data) {
   const container = document.getElementById("file-results-container");
   container.classList.remove("hidden");
 
-  document.getElementById("file-res-filename").innerText = data.filename || "file.py";
+  document.getElementById("file-res-filename").innerText =
+    data.filename || "file.py";
   const total = data.total_findings || 0;
   const score = data.score !== undefined ? data.score : 100;
   const stats = data.stats || {};
 
   document.getElementById("file-res-summary").innerText =
-    total === 0 ? "No Security Vulnerabilities Detected" : `Found ${total} Security ${total === 1 ? 'Vulnerability' : 'Vulnerabilities'}`;
+    total === 0
+      ? "No Security Vulnerabilities Detected"
+      : `Found ${total} Security ${total === 1 ? "Vulnerability" : "Vulnerabilities"}`;
 
   document.getElementById("file-res-stats").innerText =
     `Health Score: ${score}/100 • ${stats.CRITICAL || 0} Critical, ${stats.HIGH || 0} High, ${stats.MEDIUM || 0} Medium, ${stats.LOW || 0} Low`;
@@ -508,7 +541,7 @@ function renderFileResults(data) {
     return;
   }
 
-  list.innerHTML = data.findings.map(f => createFindingCardHTML(f)).join("");
+  list.innerHTML = data.findings.map((f) => createFindingCardHTML(f)).join("");
   initLucide();
 }
 
@@ -521,15 +554,17 @@ function createFindingCardHTML(f) {
 
   let snippetHTML = "";
   if (f.snippet && f.snippet.lines && f.snippet.lines.length > 0) {
-    const linesHTML = f.snippet.lines.map(l => {
-      const isTarget = l.is_target;
-      return `
-        <div class="code-line ${isTarget ? 'target' : ''}">
+    const linesHTML = f.snippet.lines
+      .map((l) => {
+        const isTarget = l.is_target;
+        return `
+        <div class="code-line ${isTarget ? "target" : ""}">
           <span class="line-num">${l.line}</span>
           <span class="code-text">${escapeHTML(l.code)}</span>
         </div>
       `;
-    }).join("");
+      })
+      .join("");
 
     snippetHTML = `
       <div class="mt-3">
@@ -587,12 +622,14 @@ function escapeHTML(str) {
 // ─── TAB 3: AST & MEMORY INSPECTOR ─────────────────────────────────────────
 
 async function loadAstData() {
-  const projectPath = document.getElementById("project-path-input").value.trim() || "./project_test";
+  const projectPath =
+    document.getElementById("project-path-input").value.trim() ||
+    "./project_test";
   try {
     const res = await fetch(`${API_BASE}/api/data_access`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ project_path: projectPath, include_ast: true })
+      body: JSON.stringify({ project_path: projectPath, include_ast: true }),
     });
 
     if (!res.ok) throw new Error("Failed to load AST & Memory data");
@@ -608,8 +645,10 @@ function renderAstData(data) {
   const memData = data.memory_space_data || {};
   const summary = memData["__summary__"] || {};
 
-  document.getElementById("ast-files-count").innerText = summary.total_py_files_scanned || 0;
-  document.getElementById("ast-ram-estimate").innerText = summary.total_estimated_ram_human || "0 MB";
+  document.getElementById("ast-files-count").innerText =
+    summary.total_py_files_scanned || 0;
+  document.getElementById("ast-ram-estimate").innerText =
+    summary.total_estimated_ram_human || "0 MB";
 
   const accordion = document.getElementById("ast-files-accordion");
   accordion.innerHTML = "";
@@ -635,7 +674,7 @@ function renderAstData(data) {
         <div class="mt-2 text-xs text-slate-400 flex flex-wrap gap-2">
           <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">Functions: ${funcs.length}</span>
           <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">Classes: ${classes.length}</span>
-          ${recursive.length > 0 ? `<span class="bg-rose-950 text-rose-400 border border-rose-800 px-2 py-0.5 rounded font-bold">Recursive: ${recursive.join(', ')}</span>` : ''}
+          ${recursive.length > 0 ? `<span class="bg-rose-950 text-rose-400 border border-rose-800 px-2 py-0.5 rounded font-bold">Recursive: ${recursive.join(", ")}</span>` : ""}
         </div>
       </div>
     `;
@@ -647,7 +686,9 @@ function renderAstData(data) {
 // ─── TAB 4: AI & KEV THREAT INTELLIGENCE (RAG) ─────────────────────────────
 
 async function runRagCveAnalysis() {
-  const projectPath = document.getElementById("project-path-input").value.trim() || "./project_test";
+  const projectPath =
+    document.getElementById("project-path-input").value.trim() ||
+    "./project_test";
   const loading = document.getElementById("rag-loading");
   const results = document.getElementById("rag-results");
 
@@ -658,7 +699,7 @@ async function runRagCveAnalysis() {
     const res = await fetch(`${API_BASE}/api/rag_cve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ project_path: projectPath })
+      body: JSON.stringify({ project_path: projectPath }),
     });
 
     if (!res.ok) {
@@ -668,8 +709,10 @@ async function runRagCveAnalysis() {
 
     const data = await res.json();
     results.classList.remove("hidden");
-    document.getElementById("rag-model-badge").innerText = data.model_used || "gemini-2.5-flash";
-    document.getElementById("rag-analysis-text").innerText = data.analysis || "No analysis generated.";
+    document.getElementById("rag-model-badge").innerText =
+      data.model_used || "gemini-2.5-flash";
+    document.getElementById("rag-analysis-text").innerText =
+      data.analysis || "No analysis generated.";
     showToast("AI threat report generated!", "success");
   } catch (err) {
     showToast(err.message, "error");
@@ -696,7 +739,9 @@ function renderRulesCatalog(rules) {
   const grid = document.getElementById("rules-grid");
   if (!grid) return;
 
-  grid.innerHTML = rules.map(r => `
+  grid.innerHTML = rules
+    .map(
+      (r) => `
     <div class="card-glass p-4 border border-slate-800 hover:border-cyan-500/40 transition">
       <div class="flex items-center justify-between mb-2">
         <h4 class="text-sm font-bold text-white">${escapeHTML(r.category)}</h4>
@@ -707,15 +752,18 @@ function renderRulesCatalog(rules) {
         <strong class="text-emerald-400">Remediation:</strong> ${escapeHTML(r.remediation)}
       </div>
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 }
 
 function filterRulesCatalog() {
   const query = document.getElementById("rules-search").value.toLowerCase();
-  const filtered = state.rulesList.filter(r =>
-    r.category.toLowerCase().includes(query) ||
-    r.cwe.toLowerCase().includes(query) ||
-    r.name.toLowerCase().includes(query)
+  const filtered = state.rulesList.filter(
+    (r) =>
+      r.category.toLowerCase().includes(query) ||
+      r.cwe.toLowerCase().includes(query) ||
+      r.name.toLowerCase().includes(query),
   );
   renderRulesCatalog(filtered);
 }
@@ -725,7 +773,8 @@ function filterRulesCatalog() {
 function openDirExplorerModal() {
   const modal = document.getElementById("modal-explorer");
   modal.classList.remove("hidden");
-  const path = document.getElementById("project-path-input").value.trim() || ".";
+  const path =
+    document.getElementById("project-path-input").value.trim() || ".";
   loadDirExplorer(path);
   initLucide();
 }
@@ -736,12 +785,15 @@ function closeDirExplorerModal() {
 
 async function loadDirExplorer(path) {
   try {
-    const res = await fetch(`${API_BASE}/api/filesystem/browse?path=${encodeURIComponent(path)}`);
+    const res = await fetch(
+      `${API_BASE}/api/filesystem/browse?path=${encodeURIComponent(path)}`,
+    );
     if (!res.ok) throw new Error("Could not browse directory");
     const data = await res.json();
 
     state.explorerCurrentPath = data.current_path;
-    document.getElementById("explorer-current-path").innerText = data.current_path;
+    document.getElementById("explorer-current-path").innerText =
+      data.current_path;
 
     const list = document.getElementById("explorer-list");
     list.innerHTML = "";
@@ -749,9 +801,9 @@ async function loadDirExplorer(path) {
     // Favorites / Shortcuts
     if (data.favorites && data.favorites.length > 0) {
       list.innerHTML += `<div class="text-[10px] uppercase font-bold text-slate-500 px-2 pt-1 pb-0.5">Shortcuts</div>`;
-      data.favorites.forEach(fav => {
+      data.favorites.forEach((fav) => {
         list.innerHTML += `
-          <button onclick="loadDirExplorer('${fav.path.replace(/\\/g, '/')}')" class="w-full text-left px-2.5 py-1.5 rounded hover:bg-slate-800 text-xs text-cyan-400 flex items-center space-x-2">
+          <button onclick="loadDirExplorer('${fav.path.replace(/\\/g, "/")}')" class="w-full text-left px-2.5 py-1.5 rounded hover:bg-slate-800 text-xs text-cyan-400 flex items-center space-x-2">
             <i data-lucide="star" class="w-3.5 h-3.5 text-cyan-400"></i>
             <span>${fav.label}</span>
           </button>
@@ -761,20 +813,21 @@ async function loadDirExplorer(path) {
     }
 
     // Subdirectories
-    data.directories.forEach(d => {
-      const escaped = d.path.replace(/\\/g, '/');
+    data.directories.forEach((d) => {
+      const escaped = d.path.replace(/\\/g, "/");
       list.innerHTML += `
         <button onclick="loadDirExplorer('${escaped}')" class="w-full text-left px-2.5 py-1.5 rounded hover:bg-slate-800 text-xs text-slate-200 flex items-center justify-between group">
           <div class="flex items-center space-x-2 truncate">
             <i data-lucide="folder" class="w-4 h-4 text-cyan-400 flex-shrink-0"></i>
             <span class="truncate">${escapeHTML(d.name)}</span>
           </div>
-          ${d.has_python_files ? '<span class="text-[10px] text-cyan-400 bg-cyan-950 px-1.5 py-0.5 rounded border border-cyan-800">contains .py</span>' : ''}
+          ${d.has_python_files ? '<span class="text-[10px] text-cyan-400 bg-cyan-950 px-1.5 py-0.5 rounded border border-cyan-800">contains .py</span>' : ""}
         </button>
       `;
     });
 
-    document.getElementById("explorer-py-count").innerText = `${data.python_files.length} Python files in current folder`;
+    document.getElementById("explorer-py-count").innerText =
+      `${data.python_files.length} Python files in current folder`;
     initLucide();
   } catch (err) {
     showToast(err.message, "error");
@@ -786,7 +839,8 @@ function navigateExplorerParent() {
 }
 
 function confirmSelectedDirectory() {
-  document.getElementById("project-path-input").value = state.explorerCurrentPath;
+  document.getElementById("project-path-input").value =
+    state.explorerCurrentPath;
   closeDirExplorerModal();
   showToast(`Selected directory: ${state.explorerCurrentPath}`, "info");
 }
@@ -813,7 +867,7 @@ async function saveGeminiKey() {
     const res = await fetch(`${API_BASE}/api/config/gemini`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ api_key: key })
+      body: JSON.stringify({ api_key: key }),
     });
 
     if (!res.ok) throw new Error("Failed to save key");
@@ -831,7 +885,9 @@ function exportReportJSON() {
     showToast("No scan results to export.", "warning");
     return;
   }
-  const blob = new Blob([JSON.stringify(state.lastProjectResult, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(state.lastProjectResult, null, 2)], {
+    type: "application/json",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -849,11 +905,15 @@ function showToast(message, type = "info") {
   const icon = document.getElementById("toast-icon");
 
   msgEl.innerText = message;
-  toast.className = "fixed bottom-5 right-5 z-50 transition-all duration-300 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2.5 text-sm font-medium border " +
-    (type === "error" ? "bg-rose-950 border-rose-800 text-rose-200" :
-     type === "success" ? "bg-emerald-950 border-emerald-800 text-emerald-200" :
-     type === "warning" ? "bg-amber-950 border-amber-800 text-amber-200" :
-     "bg-slate-900 border-slate-700 text-slate-100");
+  toast.className =
+    "fixed bottom-5 right-5 z-50 transition-all duration-300 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2.5 text-sm font-medium border " +
+    (type === "error"
+      ? "bg-rose-950 border-rose-800 text-rose-200"
+      : type === "success"
+        ? "bg-emerald-950 border-emerald-800 text-emerald-200"
+        : type === "warning"
+          ? "bg-amber-950 border-amber-800 text-amber-200"
+          : "bg-slate-900 border-slate-700 text-slate-100");
 
   toast.classList.remove("translate-y-20", "opacity-0");
   setTimeout(() => {
